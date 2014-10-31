@@ -877,3 +877,16 @@ inherits database
 	implement
 	execute
 }
+
+class service
+{
+	start
+	stop
+	status
+	reload
+	enable
+	disable
+	kill
+	load
+}
+
