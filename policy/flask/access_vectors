@@ -886,7 +886,5 @@ class service
 	reload
 	enable
 	disable
-	kill
-	load
 }
 
