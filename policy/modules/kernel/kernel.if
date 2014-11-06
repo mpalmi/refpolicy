@@ -8,6 +8,26 @@
 
 ########################################
 ## <summary>
+##	Allows the kernel to start userland processes
+##	by dynamic transitions to the specified domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	The process type entered by the kernel.
+##	</summary>
+## </param>
+#
+interface(`kernel_dyntrans_to',`
+	gen_require(`
+		type kernel_t;
+	')
+
+	allow kernel_t self:process setcurrent;
+	allow kernel_t $1:process dyntransition;
+')
+
+########################################
+## <summary>
 ##	Allows to start userland processes
 ##	by transitioning to the specified domain.
 ## </summary>

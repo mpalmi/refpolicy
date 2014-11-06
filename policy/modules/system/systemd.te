@@ -1,0 +1,49 @@
+policy_module(systemd, 1.0.0)
+
+#########################################
+#
+# Declarations
+#
+
+type systemd_cgroups_t;
+type systemd_cgroups_exec_t;
+domain_type(systemd_cgroups_t)
+domain_entry_file(systemd_cgroups_t, systemd_cgroups_exec_t)
+kernel_domtrans_to(systemd_cgroups_t, systemd_cgroups_exec_t)
+
+type systemd_locale_t;
+type systemd_locale_exec_t;
+init_system_domain(systemd_locale_t, systemd_locale_exec_t)
+
+type systemd_hostnamed_t;
+type systemd_hostnamed_exec_t;
+init_daemon_domain(systemd_hostnamed_t, systemd_hostnamed_exec_t)
+
+type systemd_logind_t;
+type systemd_logind_exec_t;
+init_daemon_domain(systemd_logind_t, systemd_logind_exec_t)
+
+type systemd_logind_var_lib_t;
+files_type(systemd_logind_var_lib_t)
+
+type systemd_logind_var_run_t;
+files_type(systemd_logind_var_run_t)
+
+type systemd_sessions_t;
+type systemd_sessions_exec_t;
+init_daemon_domain(systemd_sessions_t, systemd_sessions_exec_t)
+
+type systemd_utmp_t;
+type systemd_utmp_exec_t;
+init_system_domain(systemd_utmp_t, systemd_utmp_exec_t)
+
+#########################################
+#
+# Logind local policy
+#
+
+
+init_var_lib_filetrans(systemd_logind_t, systemd_logind_var_lib_t, dir) #, "linger")
+
+files_pid_filetrans(systemd_logind_t, systemd_logind_var_run_t, file) #, "nologin")
+init_pid_filetrans(systemd_logind_t, systemd_logind_var_run_t, dir)
