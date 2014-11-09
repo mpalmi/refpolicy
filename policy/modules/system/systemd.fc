@@ -1,3 +1,5 @@
+/bin/systemd-tmpfiles		--	gen_context(system_u:object_r:systemd_tmpfiles_exec_t,s0)
+
 /usr/bin/systemd-tmpfiles	--	gen_context(system_u:object_r:systemd_tmpfiles_exec_t,s0)
 
 /usr/lib/systemd/systemd-cgroups-agent -- gen_context(system_u:object_r:systemd_cgroups_exec_t,s0)
