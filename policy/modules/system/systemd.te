@@ -113,7 +113,7 @@ optional_policy(`
 #
 
 allow systemd_sessions_t systemd_sessions_var_run_t:file manage_file_perms;
-files_pid_filetrans(systemd_sessions_t, systemd_sessions_var_run_t, { dir file })
+files_pid_filetrans(systemd_sessions_t, systemd_sessions_var_run_t, file)
 
 #########################################
 #

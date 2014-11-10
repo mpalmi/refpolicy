@@ -183,21 +183,19 @@ seutil_read_config(init_t)
 miscfiles_read_localization(init_t)
 
 ifdef(`init_systemd',`
-	type init_tmp_t;
-	files_tmp_file(init_tmp_t)
-
 	allow init_t self:process { getcap getsched setpgid setfscreate setcap setrlimit };
 	allow init_t self:capability2 block_suspend;
 	allow init_t self:netlink_audit_socket { write nlmsg_relay read nlmsg_readpriv };
 	allow init_t self:netlink_kobject_uevent_socket read;
 	allow init_t self:netlink_selinux_socket read;
 
-	allow init_t init_tmp_t:dir manage_dir_perms;
-	files_tmp_filetrans(init_t, init_tmp_t, dir)
 
 	allow init_t init_var_run_t:dir manage_dir_perms;
 
 	domain_read_all_domains_state(init_t)
+
+	# for privatetmp functions
+	files_manage_generic_tmp_dirs(init_t)
 
 	selinux_compute_create_context(init_t)
 	selinux_compute_access_vector(init_t)
