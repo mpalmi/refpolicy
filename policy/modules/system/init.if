@@ -108,6 +108,10 @@ interface(`init_domain',`
 	role system_r types $1;
 
 	domtrans_pattern(init_t, $2, $1)
+
+	ifdef(`init_systemd',`
+		allow $1 init_t:unix_stream_socket { read write ioctl };
+	')
 ')
 
 ########################################
@@ -220,6 +224,56 @@ interface(`init_daemon_domain',`
 		')
 	')
 ')
+########################################
+## <summary>
+##	Create a domain for long running processes
+##	(daemons/services) which are started by socket activation.
+## </summary>
+## <desc>
+##	<p>
+##	Create a domain for long running processes (daemons/services)
+##	which are started by init scripts (sysvinit/upstart) or
+##	socket activation (systemd). Short running processes
+##	should use the init_system_domain() interface instead.
+##	</p>
+##	<p>
+##	The types will be made usable as a domain and file, making
+##	calls to domain_type() and files_type() redundant.
+##	</p>
+##	<p>
+##	If the process must also run in a specific MLS/MCS level,
+##	the init_ranged_daemon_domain() should be used instead.
+##	</p>
+## </desc>
+## <param name="domain">
+##	<summary>
+##	Type to be used as a daemon domain.
+##	</summary>
+## </param>
+## <param name="entry_point">
+##	<summary>
+##	Type of the program to be used as an entry point to this domain.
+##	</summary>
+## </param>
+## <param name="sock_file">
+##	<summary>
+##	Type of the named socket file.
+##	</summary>
+## </param>
+## <infoflow type="read" weight="10"/>
+#
+interface(`init_socket_daemon_domain',`
+	gen_require(`
+		type init_t;
+	')
+
+	init_daemon_domain($1, $2)
+
+	ifdef(`init_systemd',`
+		allow init_t $1:unix_stream_socket { bind create setopt listen };
+		create_sock_files_pattern(init_t, $3, $3)
+	')
+')
 
 ########################################
 ## <summary>
@@ -281,6 +335,71 @@ interface(`init_ranged_daemon_domain',`
 			range_transition initrc_t $2:process $3;
 			mls_rangetrans_target($1)
 		')
+	')
+')
+
+########################################
+## <summary>
+##	Create a domain for long running processes
+##	(daemons/services) which are started by socket activation,
+##	running at a specified MLS/MCS range.
+## </summary>
+## <desc>
+##	<p>
+##	Create a domain for long running processes (daemons/services)
+##	which are started by init scripts (sysvinit/upstart) or by
+##	socket activation (systemd), running at a specified
+##	MLS/MCS range. Short running processes
+##	should use the init_ranged_system_domain() interface instead.
+##	Typically all long running processes started by an init
+##	script (usually in /etc/init.d) will need to use this
+##	interface if they need to run in a specific MLS/MCS range.
+##	</p>
+##	<p>
+##	The types will be made usable as a domain and file, making
+##	calls to domain_type() and files_type() redundant.
+##	</p>
+##	<p>
+##	If the policy build option TYPE is standard (MLS and MCS disabled),
+##	this interface has the same behavior as init_daemon_domain().
+##	</p>
+## </desc>
+## <param name="domain">
+##	<summary>
+##	Type to be used as a daemon domain.
+##	</summary>
+## </param>
+## <param name="entry_point">
+##	<summary>
+##	Type of the program to be used as an entry point to this domain.
+##	</summary>
+## </param>
+## <param name="sock_file">
+##	<summary>
+##	Type of the named socket file.
+##	</summary>
+## </param>
+## <param name="range">
+##	<summary>
+##	MLS/MCS range for the domain.
+##	</summary>
+## </param>
+## <infoflow type="read" weight="10"/>
+#
+interface(`init_ranged_socket_daemon_domain',`
+	gen_require(`
+		type init_t;
+	')
+
+	init_socket_daemon_domain($1, $2, $3)
+
+	ifdef(`enable_mcs',`
+		range_transition init_t $2:process $4;
+	')
+
+	ifdef(`enable_mls',`
+		range_transition init_t $2:process $4;
+		mls_rangetrans_target($1)
 	')
 ')
 
