@@ -47,10 +47,19 @@ init_system_domain(systemd_utmp_t, systemd_utmp_exec_t)
 
 #######################################
 #
+# Cgroups policy
+#
+
+logging_send_syslog_msg(systemd_cgroups_t)
+
+#######################################
+#
 # Hostnamed policy
 #
 
 files_read_etc_files(systemd_hostnamed_t)
+
+logging_send_syslog_msg(systemd_hostnamed_t)
 
 seutil_read_file_contexts(systemd_hostnamed_t)
 
@@ -66,6 +75,10 @@ optional_policy(`
 
 files_read_etc_files(systemd_locale_t)
 
+logging_send_syslog_msg(systemd_locale_t)
+
+seutil_read_file_contexts(systemd_locale_t)
+
 optional_policy(`
 	dbus_connect_system_bus(systemd_locale_t)
 	dbus_system_bus_client(systemd_locale_t)
@@ -79,6 +92,7 @@ optional_policy(`
 allow systemd_logind_t self:capability { fowner sys_tty_config chown dac_override };
 allow systemd_logind_t self:process getcap;
 allow systemd_logind_t self:netlink_kobject_uevent_socket create_socket_perms;
+allow systemd_logind_t self:unix_dgram_socket create_socket_perms;
 
 init_var_lib_filetrans(systemd_logind_t, systemd_logind_var_lib_t, dir)
 
@@ -88,8 +102,13 @@ manage_fifo_files_pattern(systemd_logind_t, systemd_logind_var_run_t, systemd_lo
 init_pid_filetrans(systemd_logind_t, systemd_logind_var_run_t, dir)
 
 dev_rw_sysfs(systemd_logind_t)
+dev_rw_input_dev(systemd_logind_t)
+dev_getattr_dri_dev(systemd_logind_t)
+dev_setattr_dri_dev(systemd_logind_t)
 dev_getattr_sound_dev(systemd_logind_t)
 dev_setattr_sound_dev(systemd_logind_t)
+
+files_read_etc_files(systemd_logind_t)
 
 fs_getattr_tmpfs(systemd_logind_t)
 
@@ -100,7 +119,10 @@ storage_setattr_scsi_generic_dev(systemd_logind_t)
 
 term_use_unallocated_ttys(systemd_logind_t)
 
+logging_send_syslog_msg(systemd_logind_t)
+
 udev_read_db(systemd_logind_t)
+udev_read_pid_files(systemd_logind_t)
 
 optional_policy(`
 	dbus_system_bus_client(systemd_logind_t)
@@ -115,14 +137,29 @@ optional_policy(`
 allow systemd_sessions_t systemd_sessions_var_run_t:file manage_file_perms;
 files_pid_filetrans(systemd_sessions_t, systemd_sessions_var_run_t, file)
 
+logging_send_syslog_msg(systemd_sessions_t)
+
 #########################################
 #
 # Tmpfiles local policy
 #
 
+allow systemd_tmpfiles_t self:capability  { fowner chown fsetid dac_override };
 allow systemd_tmpfiles_t self:process setfscreate;
 
+dev_relabel_all_sysfs(systemd_tmpfiles_t)
+
 files_read_etc_files(systemd_tmpfiles_t)
+files_relabel_all_lock_dirs(systemd_tmpfiles_t)
+files_relabel_all_pid_dirs(systemd_tmpfiles_t)
+files_relabel_all_tmp_dirs(systemd_tmpfiles_t)
+
+auth_manage_var_auth(systemd_tmpfiles_t)
+auth_manage_login_records(systemd_tmpfiles_t)
+auth_relabel_login_records(systemd_tmpfiles_t)
+auth_setattr_login_records(systemd_tmpfiles_t)
+
+logging_send_syslog_msg(systemd_tmpfiles_t)
 
 seutil_read_file_contexts(systemd_tmpfiles_t)
 
@@ -133,4 +170,7 @@ seutil_read_file_contexts(systemd_tmpfiles_t)
 
 auth_write_login_records(systemd_utmp_t)
 
+init_rw_utmp(systemd_utmp_t)
+
 logging_send_audit_msgs(systemd_utmp_t)
+logging_send_syslog_msg(systemd_utmp_t)

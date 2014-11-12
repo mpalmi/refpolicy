@@ -6298,6 +6298,23 @@ interface(`files_manage_all_pids',`
 
 ########################################
 ## <summary>
+##	Relabel to/from all var_run (pid) directories
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain alloed access.
+##	</summary>
+## </param>
+#
+interface(`files_relabel_all_pid_dirs',`
+	gen_require(`
+		attribute pidfile;
+	')
+
+	relabel_dirs_pattern($1, pidfile, pidfile)
+')
+########################################
+## <summary>
 ##	Mount filesystems on all polyinstantiation
 ##	member directories.
 ## </summary>
