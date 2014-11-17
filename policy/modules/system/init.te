@@ -207,6 +207,14 @@ ifdef(`init_systemd',`
 		dbus_system_bus_client(init_t)
 		dbus_connect_system_bus(init_t)
 	')
+',`
+	tunable_policy(`init_upstart',`
+		corecmd_shell_domtrans(init_t, initrc_t)
+	',`
+		# Run the shell in the sysadm role for single-user mode.
+		# causes problems with upstart
+		sysadm_shell_domtrans(init_t)
+	')
 ')
 
 ifdef(`distro_debian',`
@@ -226,14 +234,6 @@ ifdef(`distro_redhat',`
 	fs_read_tmpfs_symlinks(init_t)
 	fs_rw_tmpfs_chr_files(init_t)
 	fs_tmpfs_filetrans(init_t, initctl_t, fifo_file)
-')
-
-tunable_policy(`init_upstart',`
-	corecmd_shell_domtrans(init_t, initrc_t)
-',`
-	# Run the shell in the sysadm role for single-user mode.
-	# causes problems with upstart
-	sysadm_shell_domtrans(init_t)
 ')
 
 optional_policy(`
@@ -641,7 +641,9 @@ ifdef(`init_systemd',`
 	# in the initrc_t domain, as would be
 	# done in traditional sysvinit/upstart.
 	corecmd_bin_entry_type(initrc_t)
+	corecmd_shell_entry_type(initrc_t)
 	corecmd_bin_domtrans(init_t, initrc_t)
+	corecmd_shell_domtrans(init_t, initrc_t)
 ')
 
 optional_policy(`
