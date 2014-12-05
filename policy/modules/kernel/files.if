@@ -563,6 +563,24 @@ interface(`files_manage_non_security_dirs',`
 
 ########################################
 ## <summary>
+##	Relabel from/to non-security directories.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`files_relabel_non_security_dirs',`
+	gen_require(`
+		attribute non_security_file_type;
+	')
+
+	relabel_dirs_pattern($1, non_security_file_type, non_security_file_type)
+')
+
+########################################
+## <summary>
 ##	Get the attributes of all files.
 ## </summary>
 ## <param name="domain">
@@ -616,6 +634,44 @@ interface(`files_dontaudit_getattr_non_security_files',`
 	')
 
 	dontaudit $1 non_security_file_type:file getattr;
+')
+
+########################################
+## <summary>
+##	Create, read, write, and delete all non-security files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+## <rolecap/>
+#
+interface(`files_manage_non_security_files',`
+	gen_require(`
+		attribute non_security_file_type;
+	')
+
+	manage_files_pattern($1, non_security_file_type, non_security_file_type)
+')
+
+########################################
+## <summary>
+##	Relabel from/to all non-security files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+## <rolecap/>
+#
+interface(`files_relabel_non_security_files',`
+	gen_require(`
+		attribute non_security_file_type;
+	')
+
+	relabel_files_pattern($1, non_security_file_type, non_security_file_type)
 ')
 
 ########################################
@@ -5869,6 +5925,29 @@ interface(`files_manage_all_locks',`
 
 ########################################
 ## <summary>
+##	Relabel from/to all lock files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`files_relabel_all_locks',`
+	gen_require(`
+		attribute lockfile;
+		type var_t, var_lock_t;
+	')
+
+	allow $1 var_lock_t:lnk_file read_lnk_file_perms;
+	allow $1 { var_t var_lock_t }:dir search_dir_perms;
+	relabel_dirs_pattern($1, lockfile, lockfile)
+	relabel_files_pattern($1, lockfile, lockfile)
+	relabel_lnk_files_pattern($1, lockfile, lockfile)
+')
+
+########################################
+## <summary>
 ##	Create an object in the locks directory, with a private
 ##	type using a type transition.
 ## </summary>
@@ -6313,6 +6392,27 @@ interface(`files_relabel_all_pid_dirs',`
 
 	relabel_dirs_pattern($1, pidfile, pidfile)
 ')
+
+########################################
+## <summary>
+##	Relabel to/from all var_run (pid) files and directories
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain alloed access.
+##	</summary>
+## </param>
+#
+interface(`files_relabel_all_pids',`
+	gen_require(`
+		attribute pidfile;
+	')
+
+	relabel_dirs_pattern($1, pidfile, pidfile)
+	relabel_files_pattern($1, pidfile, pidfile)
+	relabel_lnk_files_pattern($1, pidfile, pidfile)
+')
+
 ########################################
 ## <summary>
 ##	Mount filesystems on all polyinstantiation

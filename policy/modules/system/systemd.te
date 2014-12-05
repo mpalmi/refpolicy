@@ -41,6 +41,13 @@ type systemd_tmpfiles_t;
 type systemd_tmpfiles_exec_t;
 init_system_domain(systemd_tmpfiles_t, systemd_tmpfiles_exec_t)
 
+## <desc>
+## <p>
+## Enable support for systemd-tmpfiles to manage all non-security files.
+## </p>
+## </desc>
+gen_tunable(systemd_tmpfiles_manage_all, false)
+
 type systemd_utmp_t;
 type systemd_utmp_exec_t;
 init_system_domain(systemd_utmp_t, systemd_utmp_exec_t)
@@ -162,6 +169,15 @@ auth_setattr_login_records(systemd_tmpfiles_t)
 logging_send_syslog_msg(systemd_tmpfiles_t)
 
 seutil_read_file_contexts(systemd_tmpfiles_t)
+
+tunable_policy(`systemd_tmpfiles_manage_all',`
+	# systemd-tmpfiles can be configured to manage anything.
+	# have a last-resort option for users to do this.
+	files_manage_non_security_dirs(systemd_tmpfiles_t)
+	files_manage_non_security_files(systemd_tmpfiles_t)
+	files_relabel_non_security_dirs(systemd_tmpfiles_t)
+	files_relabel_non_security_files(systemd_tmpfiles_t)
+')
 
 #########################################
 #
