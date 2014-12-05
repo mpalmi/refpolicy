@@ -2002,6 +2002,24 @@ interface(`files_unmount_rootfs',`
 
 ########################################
 ## <summary>
+##	Mount on the root directory (/)
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`files_mounton_root',`
+	gen_require(`
+		type root_t;
+	')
+
+	allow $1 root_t:dir mounton;
+')
+
+########################################
+## <summary>
 ##	Get attributes of the /boot directory.
 ## </summary>
 ## <param name="domain">
@@ -4448,6 +4466,24 @@ interface(`files_rw_generic_tmp_sockets',`
 	')
 
 	rw_sock_files_pattern($1, tmp_t, tmp_t)
+')
+
+########################################
+## <summary>
+##	Mount filesystems in the tmp directory (/tmp)
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`files_mounton_tmp',`
+	gen_require(`
+		type tmp_t;
+	')
+
+	allow $1 tmp_t:dir mounton;
 ')
 
 ########################################
