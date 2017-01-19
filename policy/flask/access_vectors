@@ -773,6 +773,12 @@ class memprotect
 	mmap_zero
 }
 
+class db_client
+{
+	dyntransition	# set initial client context
+	setcurrent		# set effective client context
+}
+
 class db_database
 inherits database
 {

@@ -766,6 +766,13 @@ mlsconstrain context contains
 # MLS policy for database classes
 #
 
+# new client connection labels must fall within the range of the relabeling
+# subject. this allows for a "shell" to be established at a range and the user
+# to switch to any range dominated by the initial "shell" context.
+
+mlsconstrain db_client { dyntransition setcurrent }
+	(( h1 dom h2 ) and (l1 domby l2));
+
 # make sure these database classes are "single level"
 mlsconstrain { db_sequence db_view db_procedure db_language db_blob } { create relabelto }
 	( l2 eq h2 );
